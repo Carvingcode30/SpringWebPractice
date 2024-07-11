@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="org.zerock.ex00.mappers.BoardMapper">
+
+    <sql id="search">
+        <if test="(types != null and keyword != null)">
+            <foreach collection="types" item="type" open=" and ( " separator="OR" close=")">
+                <choose>
+                    <when test='type.equals("T")'>
+                        title like concat ('%',#{keyword},'%')
+                    </when>
+                    <when test='type.equals("C")'>
+                        content like concat ('%',#{keyword},'%')
+                    </when>
+                    <when test='type.equals("W")'>
+                        writer like concat ('%',#{keyword},'%')
+                    </when>
+                </choose>
+            </foreach>
+        </if>
+    </sql>
+
+    <!--한 row(데이터)를 어떻게 처리할거냐?를 의미하는게 resultType -->
+    <!-- 원래는 org.zerock.ex00.domain.BoardVO인데 mybatis-config의 TypeAliases 설정 해놔서 BoardVO 라고 쓸 수 있다  -->
+    <!-- 빠른 조회를 위해 where bno > 0 pk는 무조건 0보다 크니까? -->
+    <select id="getList" resultType="BoardVO">
+        select * from tbl_board  where bno > 0 order by bno desc
+    </select>
+
+    <select id="getPage" resultType="BoardVO">
+        select *
+        from tbl_board
+        where bno > 0
+            <include refid="search"/>
+        order by bno desc
+        limit #{skip}, #{amount}
+
+        <!--
+         MyBatis의 파라미터 처리 방식:
+MyBatis는 SQL 쿼리에서 #{...} 형태로 표현된 파라미터를 처리할 때, 해당 이름의 getter 메서드를 찾아 호출합니다.
+
+MyBatis는 SQL 매퍼 파일에서 #{} 표현식을 사용하여 값을 매핑할 때, 해당 표현식을 통해 getter 메서드를 호출합니다. 따라서 MyBatis에서는 getSkip() 메서드를 사용하여 #{skip} 표현식을 해석하고, SQL 쿼리에 매핑합니다. 이 과정에서 실제로 skip이라는 멤버 변수가 클래스에 존재할 필요는 없습니다.
+
+결론적으로, Java에서는 getter 메서드를 이용하여 객체의 상태에 접근하고, MyBatis는 이를 통해 SQL 매퍼 파일에서 #{} 표현식을 해석하여 값에 매핑합니다. getSkip() 메서드는 객체의 상태를 계산하여 반환하는 용도로 사용되며, 이 메서드가 있으면 MyBatis는 #{skip} 표현식을 정상적으로 처리할 수 있습니다.
+         -->
+    </select>
+
+    <select id="getTotal" resultType="int">
+        select count(bno)
+        from
+         tbl_board
+        where bno > 0
+        <include refid="search"/>
+    </select>
+
+    <insert id="insert">
+        <selectKey order="AFTER" keyProperty="bno" resultType="Long">
+            select last_insert_id() <!--방금전에 들어간 auto increament 값이 나옴 -->
+        </selectKey>
+
+        insert into tbl_board (title, content, writer)
+        VALUES (#{title}, #{content}, #{writer}) <!--BoardVo의 getTitle -->
+    </insert>
+
+    <select id="select" resultType="BoardVO">
+        select * from tbl_board where bno = #{bno}
+    </select>
+
+    <update id="update">
+        update tbl_board set title = #{title},
+        content = #{content},
+        updateDate = now()
+        where bno = #{bno}
+    </update>
+
+
+</mapper>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!--org.zerock.ex00.domain.BoardVO인데 이걸 그냥 BoardVO 라고 쓸려고 mybatis-config.xml 만들어서 타입 얼리아스한거.. -->
+    <typeAliases>
+        <package name="org.zerock.ex00.domain"/>
+    </typeAliases>
+</configuration>
+
