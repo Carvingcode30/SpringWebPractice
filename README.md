@@ -1,5 +1,3 @@
-코드로 배우는 스프링 웹 프로젝트 - Basic 실습
-
 - Spring Legacy Project 구성
   - Spring 5.3 / Tomcat 9.x 를 이용하는 Spring Legacy Project의 구현
   - Maria DB
